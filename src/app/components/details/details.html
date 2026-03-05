@@ -1,0 +1,222 @@
+<div class="details-container">
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading train details...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error() && !isLoading()) {
+    <div class="error-container">
+      <div class="error-card">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="10" stroke-width="2"/>
+          <path d="M12 8v4M12 16h.01" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <h2>{{ error() }}</h2>
+        <button class="btn-retry" (click)="loadTrainDetails()">Retry</button>
+      </div>
+    </div>
+  }
+
+  <!-- Main Content -->
+  @if (train() && !isLoading()) {
+    <!-- Back Button -->
+    <button class="back-button" (click)="goBack()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M19 12H5M12 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to Search
+    </button>
+
+    <!-- Train Header Card -->
+    <div class="train-header-card">
+      <div class="train-title-section">
+        <h1 class="train-name">{{ train()!.name }}</h1>
+        <span class="train-number">{{ train()!.number }}</span>
+      </div>
+      
+      <div class="route-display">
+        <div class="route-station">
+          <span class="station-label">From</span>
+          <span class="station-name">{{ train()!.from }}</span>
+          <span class="station-time">{{ train()!.departureTime }}</span>
+        </div>
+        
+        <div class="route-connector">
+          <div class="duration-badge">{{ train()!.duration }}</div>
+          <svg width="40" height="24" viewBox="0 0 40 24" fill="none" stroke="currentColor">
+            <path d="M2 12h36M32 6l6 6-6 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        
+        <div class="route-station">
+          <span class="station-label">To</span>
+          <span class="station-name">{{ train()!.to }}</span>
+          <span class="station-time">{{ train()!.arrivalTime }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      <!-- Left Column -->
+      <div class="main-content">
+        <!-- Available Classes -->
+        <div class="card">
+          <h2 class="section-title">Available Classes</h2>
+          <div class="classes-grid">
+            @for (cls of train()!.classes; track cls.type) {
+              <div class="class-card" [class.unavailable]="cls.available === 0">
+                <div class="class-header">
+                  <span class="class-name">{{ cls.type }}</span>
+                  @if (cls.available === 0) {
+                    <span class="badge badge-red">Sold Out</span>
+                  } @else if (cls.available < 10) {
+                    <span class="badge badge-orange">{{ cls.available }} left</span>
+                  } @else {
+                    <span class="badge badge-green">{{ cls.available }} available</span>
+                  }
+                </div>
+                <div class="class-footer">
+                  <span class="class-price">₹{{ cls.price }}</span>
+                  <button 
+                    class="btn-book" 
+                    [disabled]="cls.available === 0"
+                    (click)="bookClass(cls.type, cls.available, cls.price)">
+                    @if (cls.available === 0) {
+                      Sold Out
+                    } @else {
+                      Select
+                    }
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Station Schedule -->
+        <div class="card">
+          <h2 class="section-title">Station Schedule</h2>
+          <div class="timeline">
+            @for (station of train()!.stations; track station.name; let i = $index) {
+              <div class="timeline-item">
+                <div class="timeline-marker">
+                  <div class="marker-dot" 
+                       [class.first]="isFirstStation(i)" 
+                       [class.last]="isLastStation(i)">
+                  </div>
+                  @if (!isLastStation(i)) {
+                    <div class="marker-line"></div>
+                  }
+                </div>
+                
+                <div class="station-card">
+                  <div class="station-header">
+                    <span class="station-name-text">{{ station.name }}</span>
+                    <span class="platform-badge">Platform {{ station.platform }}</span>
+                  </div>
+                  
+                  <div class="station-timing">
+                    @if (station.arrival !== '-') {
+                      <div class="time-info">
+                        <span class="time-label">Arrival</span>
+                        <span class="time-value">{{ station.arrival }}</span>
+                      </div>
+                    }
+                    @if (station.departure !== '-') {
+                      <div class="time-info">
+                        <span class="time-label">Departure</span>
+                        <span class="time-value">{{ station.departure }}</span>
+                      </div>
+                    }
+                    @if (station.stop > 0) {
+                      <div class="stop-info">
+                        <span class="stop-badge">{{ station.stop }} min stop</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Amenities -->
+        <div class="card">
+          <h2 class="section-title">Amenities & Facilities</h2>
+          <div class="amenities-list">
+            @for (amenity of train()!.amenities; track amenity) {
+              <div class="amenity-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M20 6L9 17l-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ amenity }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="sidebar">
+        <!-- Journey Summary -->
+        <div class="card summary-card">
+          <h2 class="section-title">Journey Summary</h2>
+          <div class="summary-details">
+            <div class="detail-row">
+              <span class="detail-label">Train Number</span>
+              <span class="detail-value">{{ train()!.number }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Journey Time</span>
+              <span class="detail-value">{{ train()!.duration }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Running Days</span>
+              <div class="days-container">
+                @for (day of train()!.days; track day) {
+                  <span class="day-tag">{{ day }}</span>
+                }
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary btn-full" (click)="bookNow()">
+            Book Tickets
+          </button>
+        </div>
+
+        <!-- Important Information -->
+        <div class="card">
+          <h2 class="section-title">Important Notes</h2>
+          <div class="info-alerts">
+            <div class="alert-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                <path d="M12 8v4M12 16h.01" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <p>Arrive 30 minutes before departure</p>
+            </div>
+            <div class="alert-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                <path d="M12 8v4M12 16h.01" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <p>Valid ID proof required</p>
+            </div>
+            <div class="alert-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                <path d="M12 8v4M12 16h.01" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <p>Cancellation charges may apply</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

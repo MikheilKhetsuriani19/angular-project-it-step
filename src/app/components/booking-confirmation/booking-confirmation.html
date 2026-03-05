@@ -1,0 +1,389 @@
+<div class="booking-confirmation-container">
+  <!-- Error Alert -->
+  <div *ngIf="error()" class="alert alert-error">
+    {{ error() }}
+  </div>
+
+  <!-- Success Alert -->
+  <div *ngIf="success()" class="alert alert-success">
+    {{ success() }}
+  </div>
+
+  <!-- Train Info Card (always visible) -->
+  <div class="train-info-card">
+    <div *ngIf="selectedTrain() as train">
+      <div class="train-header">
+        <h2>{{ train.name }} - Train #{{ train.number }}</h2>
+      </div>
+
+      <div class="train-details-grid">
+        <div class="detail-item">
+          <span class="label">Departure</span>
+          <span class="value">{{ train.from }} @ {{ train.departure }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Arrival</span>
+          <span class="value">{{ train.to }} @ {{ train.arrive }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Tickets</span>
+          <span class="value">{{ ticketCount() }} Passenger(s)</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!selectedTrain()" class="loading">
+      <p>Loading train information...</p>
+    </div>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="step-indicator">
+    <div
+      [class.active]="currentStep() === 'general'"
+      [class.completed]="currentStep() !== 'general'"
+      class="step"
+    >
+      1. General Info
+    </div>
+    <div
+      [class.active]="currentStep() === 'passengers'"
+      [class.completed]="currentStep() !== 'passengers' && currentStep() !== 'general'"
+      class="step"
+    >
+      2. Passengers
+    </div>
+    <div
+      [class.active]="currentStep() === 'seats'"
+      [class.completed]="currentStep() !== 'seats' && currentStep() !== 'general' && currentStep() !== 'passengers'"
+      class="step"
+    >
+      3. Seats
+    </div>
+    <div [class.active]="currentStep() === 'confirmation'" class="step">
+      4. Confirm
+    </div>
+    <div [class.active]="currentStep() === 'invoice'" class="step">
+      5. Invoice
+    </div>
+  </div>
+
+  <!-- STEP 1: General Information -->
+  <div *ngIf="currentStep() === 'general'" class="step-content">
+    <h3>Contact Information</h3>
+
+    <form [formGroup]="generalInfoForm">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="example@email.com"
+          class="form-control"
+        />
+        <div
+          *ngIf="generalInfoForm.get('email')?.invalid && generalInfoForm.get('email')?.touched"
+          class="error-text"
+        >
+          Please enter a valid email address
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input
+          id="phone"
+          type="tel"
+          formControlName="phone"
+          placeholder="500123456"
+          class="form-control"
+          maxlength="9"
+        />
+        <div
+          *ngIf="generalInfoForm.get('phone')?.invalid && generalInfoForm.get('phone')?.touched"
+          class="error-text"
+        >
+          Phone number must be exactly 9 digits
+        </div>
+      </div>
+    </form>
+
+    <div class="button-group">
+      <button class="btn btn-secondary" (click)="goBack()">Back</button>
+      <button class="btn btn-primary" (click)="proceedToPassengers()">
+        Next: Passenger Info
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Passenger Information -->
+  <div *ngIf="currentStep() === 'passengers'" class="step-content">
+    <h3>Passenger Information</h3>
+
+    <div *ngFor="let passengerForm of passengerForms; let i = index" class="passenger-form">
+      <h4>Passenger {{ i + 1 }}</h4>
+
+      <form [formGroup]="passengerForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name-{{ i }}">First Name</label>
+            <input
+              [id]="'name-' + i"
+              type="text"
+              formControlName="name"
+              placeholder="John"
+              class="form-control"
+            />
+            <div
+              *ngIf="passengerForm.get('name')?.invalid && passengerForm.get('name')?.touched"
+              class="error-text"
+            >
+              Name is required (minimum 2 characters)
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="surname-{{ i }}">Last Name</label>
+            <input
+              [id]="'surname-' + i"
+              type="text"
+              formControlName="surname"
+              placeholder="Doe"
+              class="form-control"
+            />
+            <div
+              *ngIf="passengerForm.get('surname')?.invalid && passengerForm.get('surname')?.touched"
+              class="error-text"
+            >
+              Surname is required (minimum 2 characters)
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="id-{{ i }}">ID Number</label>
+          <input
+            [id]="'id-' + i"
+            type="text"
+            formControlName="idNumber"
+            placeholder="12345678901"
+            class="form-control"
+            maxlength="11"
+          />
+          <div
+            *ngIf="passengerForm.get('idNumber')?.invalid && passengerForm.get('idNumber')?.touched"
+            class="error-text"
+          >
+            ID Number must be exactly 11 digits
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="button-group">
+      <button class="btn btn-secondary" (click)="goBack()">Back</button>
+      <button class="btn btn-primary" (click)="proceedToSeats()">
+        Next: Select Seats
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Seat Selection -->
+  <div *ngIf="currentStep() === 'seats'" class="step-content">
+    <h3>Select Your Seats</h3>
+
+    <div *ngIf="isLoadingVagons()" class="loading">
+      <p>Loading vagons...</p>
+    </div>
+
+    <div *ngIf="!isLoadingVagons() && vagons().length > 0" class="vagons-container">
+      <div *ngFor="let vagon of vagons(); let i = index" class="vagon-wrapper">
+        <div class="vagon-title-bar">
+          <h4>Vagon {{ vagon.name }}</h4>
+          <span class="seat-count">{{ getAvailableSeatsCount(vagon) }}/{{ vagon.seats?.length || 0 }} available</span>
+        </div>
+
+        <div class="vagon-content">
+          <!-- Debug info -->
+          <div *ngIf="vagon.seats && vagon.seats.length > 0" class="debug-info" style="font-size: 0.75rem; color: #999; margin-bottom: 1rem;">
+            <p>Seats loaded: {{ vagon.seats.length }}</p>
+          </div>
+
+          <div *ngIf="vagon.seats && vagon.seats.length > 0" class="seats-visualization">
+            <!-- Seat Map -->
+            <div class="seat-rows">
+              <!-- Group seats in rows (e.g., 6 seats per row) -->
+              <div *ngFor="let rowSeats of getGroupedSeats(vagon.seats, 6)" class="seat-row">
+                <button
+                  *ngFor="let seat of rowSeats"
+                  type="button"
+                  [class.available]="!seat.isOccupied"
+                  [class.occupied]="seat.isOccupied"
+                  [class.selected]="isSeatSelected(vagon.id, seat.number)"
+                  [disabled]="seat.isOccupied"
+                  (click)="selectSeat(vagon, seat.number)"
+                  class="seat"
+                  [title]="getSeatTooltip(seat)"
+                >
+                  <span class="seat-number">{{ seat.number }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="seat-legend">
+              <div class="legend-item">
+                <div class="legend-seat available"></div>
+                <span>Available</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-seat occupied"></div>
+                <span>Occupied</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-seat selected"></div>
+                <span>Selected</span>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!vagon.seats || vagon.seats.length === 0" class="no-seats-message">
+            <p>No seats available for this vagon</p>
+          </div>
+
+          <!-- Selected Seats Info for This Vagon -->
+          <div class="vagon-selection-info">
+            <div class="selected-seats-list">
+              <div *ngFor="let selectedSeat of selectedSeats()" class="selected-seat-item">
+                <span *ngIf="selectedSeat.vagonId === vagon.id" class="seat-badge">
+                  Seat {{ selectedSeat.seatNumber }}
+                  <button 
+                    type="button" 
+                    class="remove-seat"
+                    (click)="selectSeat(vagon, selectedSeat.seatNumber)"
+                    title="Remove this seat"
+                  >
+                    ✕
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoadingVagons() && vagons().length === 0" class="no-data">
+      <p>No vagons available</p>
+    </div>
+
+    <!-- Selection Progress -->
+    <div class="selection-progress">
+      <div class="progress-bar">
+        <div 
+          class="progress-fill" 
+          [style.width.%]="(selectedSeats().length / ticketCount()) * 100"
+        ></div>
+      </div>
+      <p class="progress-text">
+        Selected {{ selectedSeats().length }} of {{ ticketCount() }} seat(s)
+      </p>
+    </div>
+
+    <div class="button-group">
+      <button class="btn btn-secondary" (click)="goBack()">Back</button>
+      <button
+        class="btn btn-primary"
+        (click)="proceedToConfirmation()"
+        [disabled]="selectedSeats().length !== ticketCount()"
+      >
+        Next: Review & Confirm
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Review & Confirmation -->
+  <div *ngIf="currentStep() === 'confirmation'" class="step-content">
+    <h3>Review & Confirm Your Booking</h3>
+
+    <!-- General Info Summary -->
+    <div class="summary-section">
+      <h4>Contact Information</h4>
+      <div class="summary-item">
+        <span class="label">Email:</span>
+        <span class="value">{{ generalInfoForm.value.email }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="label">Phone:</span>
+        <span class="value">{{ generalInfoForm.value.phone }}</span>
+      </div>
+    </div>
+
+    <!-- Passengers Summary -->
+    <div class="summary-section">
+      <h4>Passengers</h4>
+      <div *ngFor="let passengerForm of passengerForms; let i = index" class="passenger-summary">
+        <div class="summary-item">
+          <span class="label">Passenger {{ i + 1 }}:</span>
+          <span class="value">
+            {{ passengerForm.value.name }} {{ passengerForm.value.surname }} (ID:
+            {{ passengerForm.value.idNumber }})
+          </span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Seat:</span>
+          <span class="value">
+            Vagon {{ selectedSeats()[i].vagonId }} - Seat {{ selectedSeats()[i].seatNumber }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button class="btn btn-secondary" (click)="goBack()" [disabled]="isSubmitting()">
+        Back
+      </button>
+      <button
+        class="btn btn-success"
+        (click)="submitTickets()"
+        [disabled]="isSubmitting()"
+      >
+        {{ isSubmitting() ? 'Processing...' : 'Confirm & Book Tickets' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Invoice / Payment -->
+  <div *ngIf="currentStep() === 'invoice'" class="step-content">
+    <h3>Invoice</h3>
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Passenger</th>
+          <th>Seat</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of invoiceTickets(); let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ t.name }} {{ t.surname }}</td>
+          <td>Vagon {{ t.vagonId }} - {{ t.seatNumber }}</td>
+          <td>{{ t.price | currency:'GEL':'symbol':'1.2-2' }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="3">Total</td>
+          <td>{{ totalPrice() | currency:'GEL':'symbol':'1.2-2' }}</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="button-group">
+      <button class="btn btn-secondary" (click)="goBack()">Back</button>
+      <button class="btn btn-success" (click)="payTickets()">Pay Now</button>
+    </div>
+  </div>
+</div>

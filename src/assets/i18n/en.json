@@ -1,0 +1,13 @@
+{
+  "HEADER": {
+    "TITLE": "Georgian Railway",
+    "BOOK_TICKETS": "Book Tickets",
+    "MY_TRIPS": "My Trips",
+    "SUPPORT": "Support"
+  },
+  "HOME": {
+    "SEARCH_TITLE": "Search Train Tickets",
+    "FROM": "FROM",
+    "TO": "TO"
+  }
+}

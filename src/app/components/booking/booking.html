@@ -1,0 +1,21 @@
+<div class="booking-page">
+  <div class="container">
+    
+    <app-search-form (searchSubmitted)="onSearch($event)"></app-search-form>
+    
+    <div class="loading" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Searching for trains...</p>
+    </div>
+    
+    <app-results-list 
+      *ngIf="!isLoading && trains.length > 0" 
+      [trains]="trains"
+      [ticketCount]="currentTicketCount">
+    </app-results-list>
+
+    <div *ngIf="!isLoading && hasSearched && trains.length === 0">
+      <p>No trains found.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,73 @@
+<div class="search-form-container">
+  <h2>Search Train Tickets</h2>
+  <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="search-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="from">From</label>
+        <select id="from" formControlName="from" class="form-control">
+          <option value="">Select departure city</option>
+          <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+        </select>
+        <div class="error" *ngIf="searchForm.get('from')?.invalid && searchForm.get('from')?.touched">
+          Please select departure city
+        </div>
+      </div>
+
+      <button type="button" class="swap-btn" (click)="swapCities()" title="Swap cities">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M7 16V4M7 4L3 8M7 4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" stroke-width="2"/>
+        </svg>
+      </button>
+
+      <div class="form-group">
+        <label for="to">To</label>
+        <select id="to" formControlName="to" class="form-control">
+          <option value="">Select arrival city</option>
+          <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+        </select>
+        <div class="error" *ngIf="searchForm.get('to')?.invalid && searchForm.get('to')?.touched">
+          Please select arrival city
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="selectedDate">Travel Date</label>
+        <input 
+          type="date" 
+          id="selectedDate" 
+          formControlName="selectedDate" 
+          class="form-control date-input"
+          [min]="minDate">
+        
+        <!-- Show which day of week will be searched -->
+        <div class="date-preview" *ngIf="searchForm.get('selectedDate')?.value">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M11 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+          </svg>
+          Day: <strong>{{ getPreviewDay() }}</strong>
+        </div>
+        
+        <div class="error" *ngIf="searchForm.get('selectedDate')?.invalid && searchForm.get('selectedDate')?.touched">
+          Please select a travel date
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="ticketCount">Number of Tickets</label>
+        <select id="ticketCount" formControlName="ticketCount" class="form-control">
+          <option *ngFor="let count of ticketCounts" [value]="count">{{ count }}</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" class="search-btn" [disabled]="searchForm.invalid">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      Search Trains
+    </button>
+  </form>
+</div>

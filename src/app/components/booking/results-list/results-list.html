@@ -1,0 +1,86 @@
+<div class="results-container">
+  <div class="results-header">
+    <h3>Available Trains</h3>
+    <p class="results-count">{{ trains.length }} train(s) found</p>
+  </div>
+
+  <div class="no-results" *ngIf="trains.length === 0">
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="35" stroke="#cbd5e0" stroke-width="4"/>
+      <path d="M40 25v20M40 55h.02" stroke="#cbd5e0" stroke-width="4"/>
+    </svg>
+    <h4>No trains found</h4>
+    <p>Please try different search criteria</p>
+  </div>
+
+  <div class="train-list">
+    <div class="train-card" *ngFor="let train of trains">
+      <!-- Train Number Badge -->
+      <div class="train-number">
+        <span class="label">Train</span>
+        <span class="number">{{ train.number }}</span>
+      </div>
+      
+      <!-- Route Information -->
+      <div class="route-info">
+        <div class="route-header">
+          <div class="station">
+            <span class="city">{{ train.from }}</span>
+            <span class="time">{{ train.departure }}</span>
+          </div>
+          
+          <div class="route-line">
+            <div class="dot"></div>
+            <div class="line"></div>
+            <div class="arrow">→</div>
+            <div class="line"></div>
+            <div class="dot"></div>
+          </div>
+          
+          <div class="station">
+            <span class="city">{{ train.to }}</span>
+            <span class="time">{{ train.arrive }}</span>
+          </div>
+        </div>
+
+        <div class="train-meta">
+          <div class="meta-item">
+            <span class="meta-label">Route</span>
+            <span class="meta-value route-name">{{ train.name }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Day</span>
+            <span class="meta-value">
+              <span class="day-badge">{{ train.date }}</span>
+            </span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Classes</span>
+            <span class="meta-value vagon-info">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M2 4h12v8H2z"/>
+              </svg>
+              {{ train.vagons.length }} types
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="train-actions">
+        <div class="ticket-info">
+          🎫 {{ ticketCount }} ticket(s)
+        </div>
+        <button class="select-btn" (click)="selectTrain(train)">
+          Select Train
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M7.5 15l5-5-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <a class="details-btn" [routerLink]="['/train', train.id]">
+          View Details
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

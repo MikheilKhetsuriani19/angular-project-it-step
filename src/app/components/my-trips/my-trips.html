@@ -1,0 +1,105 @@
+<div class="my-trips-container">
+  <h2 class="my-trips-title">My Trips</h2>
+  
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="filter-row">
+      <select [(ngModel)]="filterType" (change)="filterTickets()" class="filter-select">
+        <option value="all">All Tickets</option>
+        <option value="id">Search by Ticket ID</option>
+        <option value="passenger">Search by Passenger Name</option>
+        <option value="email">Search by Email</option>
+      </select>
+      
+      <input 
+        type="text" 
+        [(ngModel)]="filterValue" 
+        (input)="filterTickets()"
+        [placeholder]="getPlaceholder()"
+        class="filter-input"
+      />
+      
+      <button *ngIf="filterValue || filterType !== 'all'" (click)="clearFilter()" class="clear-btn">
+        Clear
+      </button>
+    </div>
+  </div>
+  
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading your trips...</p>
+  </div>
+  
+  <!-- No Tickets -->
+  <div *ngIf="!isLoading && filteredTickets.length === 0" class="empty-message">
+    <p *ngIf="tickets.length === 0">No tickets found.</p>
+    <p *ngIf="tickets.length > 0">No tickets match your search.</p>
+  </div>
+  
+  <!-- Tickets List -->
+  <ul *ngIf="!isLoading && filteredTickets.length > 0" class="tickets-list">
+    <li *ngFor="let ticket of filteredTickets" class="ticket-item">
+      <div class="ticket-header">
+        <div class="ticket-train-name">{{ getTrainName(ticket) }}</div>
+        <div class="ticket-id">{{ ticket.id }}</div>
+      </div>
+      
+      <!-- Route Information -->
+      <div class="route-section">
+        <div class="route-label">Route</div>
+        <div class="route-info">
+          <span class="departure">{{ getTrainFrom(ticket) }}</span>
+          <span class="arrow">→</span>
+          <span class="arrival">{{ getTrainTo(ticket) }}</span>
+        </div>
+      </div>
+      
+      <div class="ticket-details">
+        <div class="details-item">
+          <div class="details-label">Train ID</div>
+          <div class="details-value">{{ ticket.trainID }}</div>
+        </div>
+        <div class="details-item">
+          <div class="details-label">Departure Time</div>
+          <div class="details-value">{{ getTrainDeparture(ticket) }}</div>
+        </div>
+        <div class="details-item">
+          <div class="details-label">Arrival Time</div>
+          <div class="details-value">{{ getTrainArrive(ticket) }}</div>
+        </div>
+        <div class="details-item">
+          <div class="details-label">Date</div>
+          <div class="details-value">{{ ticket.date }}</div>
+        </div>
+        <div class="details-item">
+          <div class="details-label">Price</div>
+          <div class="details-value">{{ ticket.ticketPrice | currency:'GEL':'symbol' }}</div>
+        </div>
+        <div class="details-item">
+          <div class="details-label">Email</div>
+          <div class="details-value">{{ ticket.email }}</div>
+        </div>
+        <div class="details-item">
+          <div class="details-label">Phone</div>
+          <div class="details-value">{{ ticket.phone }}</div>
+        </div>
+      </div>
+      
+      <div class="persons-section">
+        <div class="persons-title">Passengers</div>
+        <div class="persons-list">
+          <span *ngFor="let p of ticket.persons" class="person-badge">
+            {{ p.name }} {{ p.surname }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="ticket-actions">
+        <button (click)="deleteTicket(ticket.id)" class="delete-btn">
+          Cancel Ticket
+        </button>
+      </div>
+    </li>
+  </ul>
+</div>

@@ -1,0 +1,32 @@
+<div class="payment-container">
+  <h2>Payment Details</h2>
+  <form [formGroup]="paymentForm" (ngSubmit)="submit()">
+    <div class="form-group">
+      <label for="cardNumber">Card Number</label>
+      <input id="cardNumber" formControlName="cardNumber" maxlength="16" />
+      <div class="error" *ngIf="paymentForm.get('cardNumber')?.invalid && paymentForm.get('cardNumber')?.touched">
+        Enter a 16‑digit number
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="cardName">Name on Card</label>
+      <input id="cardName" formControlName="cardName" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group small">
+        <label for="expiry">Expiry (MM/YY)</label>
+        <input id="expiry" formControlName="expiry" placeholder="MM/YY" />
+      </div>
+      <div class="form-group small">
+        <label for="cvv">CVV</label>
+        <input id="cvv" formControlName="cvv" maxlength="3" />
+      </div>
+    </div>
+
+    <button class="btn btn-success" type="button" (click)="submit()">
+      {{ isProcessing ? 'Processing...' : 'Pay' }}
+    </button>
+  </form>
+</div>
