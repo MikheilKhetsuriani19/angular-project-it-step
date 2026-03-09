@@ -7,25 +7,38 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--neutral-200);
+  position: relative;
+}
+
+.results-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100px;
+  height: 2px;
+  background: var(--gradient-primary);
 }
 
 .results-header h3 {
   margin: 0;
-  color: #1a202c;
+  color: var(--neutral-800);
   font-size: 1.75rem;
   font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .results-count {
-  color: #718096;
-  font-size: 1rem;
+  color: var(--neutral-500);
+  font-size: 0.95rem;
   margin: 0;
-  background: #f7fafc;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-weight: 500;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  border: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .no-results {
@@ -61,38 +74,67 @@
 
 .train-card {
   background: white;
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 2rem;
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 2.5rem;
   align-items: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid transparent;
   position: relative;
   overflow: hidden;
 }
 
+/* Gradient border effect on hover */
 .train-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  width: 4px;
+  right: 0;
+  bottom: 0;
+  border-radius: 20px;
+  padding: 2px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.train-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 
+    0 20px 40px rgba(102, 126, 234, 0.2),
+    0 8px 16px rgba(102, 126, 234, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.train-card:hover::before {
+  opacity: 1;
+}
+
+/* Left accent bar */
+.train-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
   height: 100%;
   background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
   opacity: 0;
   transition: opacity 0.3s;
 }
 
-.train-card:hover {
-  border-color: #667eea;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
-  transform: translateY(-4px);
-}
-
-.train-card:hover::before {
+.train-card:hover::after {
   opacity: 1;
 }
 

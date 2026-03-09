@@ -2,7 +2,13 @@
   max-width: 900px;
   margin: 2rem auto;
   padding: 2rem;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #e0c3fc 100%);
+  background: 
+    linear-gradient(135deg, rgba(102, 126, 234, 0.88) 0%, rgba(118, 75, 162, 0.85) 50%, rgba(240, 147, 251, 0.88) 100%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 250, 252, 0.92) 50%, rgba(224, 195, 252, 0.92) 100%),
+url('https://www.safeture.com/wp-content/uploads/sites/11/2023/02/Safeture_train_booking_travelers_train_station-1-1024x694.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.6);
@@ -1048,34 +1054,4 @@ label {
 
 .total-row td {
   font-weight: 700;
-}
-
-
-  .seat-rows {
-    padding: 1rem;
-    gap: 1rem;
-  }
-
-  .seat-legend {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .train-details-grid {
-    gap: 1rem;
-  }
-
-  .detail-item .value {
-    font-size: 1rem;
-  }
-
-  .selected-seats-list {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .seat-badge {
-    width: 100%;
-    justify-content: space-between;
-  }
 }

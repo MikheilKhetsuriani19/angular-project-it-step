@@ -174,22 +174,41 @@ export class MyTripsComponent implements OnInit {
   }
 
   deleteTicket(ticketId: string): void {
-    if (!confirm('Are you sure you want to cancel this ticket?')) {
-      return;
-    }
-
-    this.http.delete(`${this.apiUrl}/tickets/cancel/${ticketId}`, { responseType: 'text' }).subscribe({
-      next: (response) => {
-        console.log('Ticket cancelled:', response);
-        alert('Ticket cancelled successfully');
-        // Remove from local array
-        this.tickets = this.tickets.filter(t => t.id !== ticketId);
-        this.filterTickets();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Failed to cancel ticket:', err);
-        alert('Failed to cancel ticket. Please try again.');
+    (window as any).Swal.fire({
+      title: 'Cancel Ticket',
+      text: 'Are you sure you want to cancel this ticket?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#667eea',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, cancel it!',
+      cancelButtonText: 'No, keep it'
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        this.http.delete(`${this.apiUrl}/tickets/cancel/${ticketId}`, { responseType: 'text' }).subscribe({
+          next: (response) => {
+            console.log('Ticket cancelled:', response);
+            (window as any).Swal.fire({
+              icon: 'success',
+              title: 'Cancelled!',
+              text: 'Ticket has been cancelled successfully.',
+              confirmButtonColor: '#667eea'
+            });
+            // Remove from local array
+            this.tickets = this.tickets.filter(t => t.id !== ticketId);
+            this.filterTickets();
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error('Failed to cancel ticket:', err);
+            (window as any).Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to cancel ticket. Please try again.',
+              confirmButtonColor: '#667eea'
+            });
+          }
+        });
       }
     });
   }

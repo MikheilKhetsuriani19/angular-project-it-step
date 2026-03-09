@@ -67,7 +67,12 @@ export class PaymentComponent implements OnInit {
     const hasValues = formValues.cardNumber || formValues.cardName || formValues.expiry || formValues.cvv;
     
     if (!hasValues) {
-      alert('Please enter your card details');
+      (window as any).Swal.fire({
+        icon: 'warning',
+        title: 'Missing Details',
+        text: 'Please enter your card details',
+        confirmButtonColor: '#667eea'
+      });
       return;
     }
 
@@ -98,8 +103,14 @@ export class PaymentComponent implements OnInit {
           console.log('Tickets registered with payment:', response);
           sessionStorage.removeItem('pendingTicketData');
           this.isProcessing = false;
-          alert('Payment successful! Your tickets have been booked.');
-          this.router.navigate(['/my-trips']);
+          (window as any).Swal.fire({
+            icon: 'success',
+            title: 'Payment Successful!',
+            text: 'Your tickets have been booked.',
+            confirmButtonColor: '#667eea'
+          }).then(() => {
+            this.router.navigate(['/my-trips']);
+          });
         },
         error: (err) => {
           console.error('Error registering tickets:', err);
@@ -107,11 +118,22 @@ export class PaymentComponent implements OnInit {
           
           const errorMessage = err.error?.message || err.error || '';
           if (errorMessage.includes('already occupied')) {
-            alert('These seats are already booked. Please go back and select different seats.');
-            this.router.navigate(['/booking']);
+            (window as any).Swal.fire({
+              icon: 'error',
+              title: 'Seats Already Booked',
+              text: 'These seats are already booked. Please go back and select different seats.',
+              confirmButtonColor: '#667eea'
+            }).then(() => {
+              this.router.navigate(['/booking']);
+            });
           } else {
             sessionStorage.removeItem('pendingTicketData');
-            alert('Payment failed. Please try again or contact support.');
+            (window as any).Swal.fire({
+              icon: 'error',
+              title: 'Payment Failed',
+              text: 'Payment failed. Please try again or contact support.',
+              confirmButtonColor: '#667eea'
+            });
           }
         }
       });
@@ -125,8 +147,14 @@ export class PaymentComponent implements OnInit {
     setTimeout(() => {
       this.isProcessing = false;
       sessionStorage.removeItem('pendingTicketData');
-      alert('Payment successful! Your tickets have been booked.');
-      this.router.navigate(['/my-trips']);
+      (window as any).Swal.fire({
+        icon: 'success',
+        title: 'Payment Successful!',
+        text: 'Your tickets have been booked.',
+        confirmButtonColor: '#667eea'
+      }).then(() => {
+        this.router.navigate(['/my-trips']);
+      });
     }, 1500);
   }
 }

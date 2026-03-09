@@ -121,6 +121,12 @@
 .nav a.active::after {
   width: 100%;
 }
+.home{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
 
 /* Responsive - Tablet and below */
 @media (max-width: 768px) {
